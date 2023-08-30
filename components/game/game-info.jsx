@@ -46,20 +46,27 @@ const profiles = [
   },
 ]
 
-export function GameInfo({ className, playersCount, currentMove }) {
+export function GameInfo({
+  className,
+  playersCount,
+  currentMove,
+  isWinner,
+  handlePlayerTimeOver,
+}) {
   return (
     <div
       className={clsx(
         className,
         'bg-white rounded-xl shadow-md py-4 px-8 grid grid-cols-2 justify-between gap-3',
       )}>
-      {profiles.slice(0, playersCount).map((profile, index) => {
+      {profiles.slice(0, playersCount).map((player, index) => {
         return (
-          <ProfileInfo
-            profileInfo={profile}
-            key={profile.id}
+          <PlayerInfo
+            playerInfo={player}
+            key={player.id}
             isRight={index % 2 === 1}
-            isTimeRunning={currentMove === profile.symbol}
+            isTimeRunning={currentMove === player.symbol && !isWinner}
+            onTimeOver={() => handlePlayerTimeOver(player.symbol)}
           />
         )
       })}
@@ -67,8 +74,8 @@ export function GameInfo({ className, playersCount, currentMove }) {
   )
 }
 
-function ProfileInfo({ profileInfo, isRight, isTimeRunning }) {
-  const [seconds, setSeconds] = useState(60)
+function PlayerInfo({ playerInfo, isRight, isTimeRunning, onTimeOver }) {
+  const [seconds, setSeconds] = useState(6)
 
   const minuteString = String(Math.floor(seconds / 60)).padStart(2, '0')
   const secondsString = String(Math.floor(seconds % 60)).padStart(2, '0')
@@ -83,10 +90,17 @@ function ProfileInfo({ profileInfo, isRight, isTimeRunning }) {
 
       return () => {
         clearInterval(interval)
-        setSeconds(60)
+        setSeconds(6)
       }
     }
   }, [isTimeRunning])
+
+  useEffect(() => {
+    if (seconds === 0) {
+      onTimeOver()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds])
 
   const getTimerColor = () => {
     if (isTimeRunning) {
@@ -105,12 +119,12 @@ function ProfileInfo({ profileInfo, isRight, isTimeRunning }) {
       <div className='relative'>
         <Profile
           className='w-44'
-          name={profileInfo.name}
-          avatar={profileInfo.avatar}
-          rating={profileInfo.rating}
+          name={playerInfo.name}
+          avatar={playerInfo.avatar}
+          rating={playerInfo.rating}
         />
         <div className='w-5 h-5 rounded-full bg-white shadow absolute -top-1 -left-1 flex items-center justify-center'>
-          <GameSymbol symbol={profileInfo.symbol} />
+          <GameSymbol symbol={playerInfo.symbol} />
         </div>
       </div>
       <div className='h-6 w-px bg-slate-200'></div>

@@ -2,15 +2,23 @@ import { useState } from 'react'
 import {
   GameField,
   GameInfo,
+  GameSymbol,
   GameTitle,
   useGameState,
 } from '../components/game'
 import { Header } from '../components/header'
 
 export default function App() {
-  const [playersCount] = useState(2)
-  const { cells, currentMove, nextMove, handleClickCell, winnerSequence } =
-    useGameState(playersCount)
+  const [playersCount] = useState(4)
+  const {
+    cells,
+    currentMove,
+    nextMove,
+    handleClickCell,
+    winnerSequence,
+    handlePlayerTimeOver,
+    winnerSymbol,
+  } = useGameState(playersCount)
 
   return (
     <div className='min-h-screen bg-slate-50'>
@@ -21,7 +29,14 @@ export default function App() {
           className='mt-4'
           playersCount={playersCount}
           currentMove={currentMove}
+          isWinner={!!winnerSymbol}
+          handlePlayerTimeOver={handlePlayerTimeOver}
         />
+        {winnerSymbol && (
+          <div className='my-4'>
+            <GameSymbol symbol={winnerSymbol} className='w-8 h-8' />
+          </div>
+        )}
         <GameField
           className='mt-6'
           playersCount={playersCount}
@@ -30,6 +45,7 @@ export default function App() {
           nextMove={nextMove}
           handleClickCell={handleClickCell}
           winnerSequence={winnerSequence}
+          winnerSymbol={winnerSymbol}
         />
       </main>
     </div>
